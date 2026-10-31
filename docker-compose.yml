@@ -1,0 +1,27 @@
+
+services:
+  db:
+    image: postgres:17
+    container_name: resume_matcher_db
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: resume_user
+      POSTGRES_PASSWORD: local_dev_password
+      POSTGRES_DB: resume_matcher
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resume_user -d resume_matcher"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
