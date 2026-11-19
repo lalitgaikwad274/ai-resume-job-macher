@@ -61,15 +61,15 @@ async def home():
     }
 
 
-@app.get("/health/database")
-def database_health(db: Session = Depends(get_db)):
+# @app.get("/health/database")
+# def database_health(db: Session = Depends(get_db)):
 
-    db.execute(text("SELECT 1"))
+#     db.execute(text("SELECT 1"))
 
-    return {
-        "status": "connected",
-        "database": "postgresql",
-    }
+#     return {
+#         "status": "connected",
+#         "database": "postgresql",
+#     }
 
 @app.post("/resume/parse")
 async def parse_resume(
