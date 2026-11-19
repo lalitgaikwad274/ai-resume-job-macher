@@ -26,6 +26,8 @@ if config.config_file_name is not None:
 
 # Set database URL dynamically from environment
 database_url = os.getenv("DATABASE_URL", "").replace("%", "%%")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url)
 
