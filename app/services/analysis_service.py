@@ -1,4 +1,5 @@
 
+from app.services.resume_section_extractor import extract_resume_sections
 from app.services.resume_parser import extract_resume_text
 
 from app.services.skill_extractor import (
@@ -43,6 +44,10 @@ async def analyze_complete_resume(
         file_bytes,
     )
 
+    resume_sections = extract_resume_sections(
+        resume_text
+    )
+    print(resume_sections["education"], resume_sections["experience"])
     if not resume_text:
         raise ValueError("No readable resume text found.")
 
@@ -52,13 +57,13 @@ async def analyze_complete_resume(
     )
 
     experience = extract_experience(
-        resume_text
+        resume_sections["experience"]
     )
-
+    print("experience",experience)
     education = extract_education(
-        resume_text
+        resume_sections["education"]
     )
-
+    print("education", education)
     # STEP 3: Analyze job description
     job_analysis = analyze_job_description(
         job_description
@@ -95,7 +100,7 @@ async def analyze_complete_resume(
     return {
         "job_title": job_title,
 
-        "resume": {
+        "resume_analysis": {
             "filename": filename,
             "word_count": len(resume_text.split()),
             "character_count": len(resume_text),
@@ -109,7 +114,7 @@ async def analyze_complete_resume(
 
         "job_analysis": job_analysis,
 
-        "matching": {
+        "match_analysis": {
             **match_score,
             **comparison,
         },

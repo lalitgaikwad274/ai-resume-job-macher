@@ -26,14 +26,14 @@ class SkillRecommendation(BaseModel):
 
 
 class ResumeRecommendation(BaseModel):
-    overall_feedback: str
+    overall_feedback: str | None = None
 
-    strengths: list[ResumeStrength]
+    strengths: list[ResumeStrength] = Field(default_factory=list)
 
-    weaknesses: list[ResumeWeakness]
+    weaknesses: list[ResumeWeakness] = Field(default_factory=list)
 
-    missing_skills: list[SkillRecommendation]
+    missing_skills: list[SkillRecommendation] = Field(default_factory=list)
 
-    bullet_improvements: list[BulletImprovement]
+    bullet_improvements: list[BulletImprovement] = Field(default_factory=list)
 
-    ats_recommendations: list[str]
+    ats_recommendations: list[str] = Field(default_factory=list)

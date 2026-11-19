@@ -1,52 +1,61 @@
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
-from app.models import User
-from app.schemas.user import UserCreate, UserResponse
-from app.core.security import hash_password
+from app.database.connection import get_db
+
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+)
+
+from app.repositories.user_repository import (
+    create_user,
+    get_user_by_email,
+    get_user_by_id,
+)
 
 router = APIRouter(
     prefix="/users",
-    tags=["Users"]
+    tags=["Users"],
 )
 
 
-@router.post(
-    "/register",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=UserResponse)
 def register_user(
-    user_data: UserCreate,
-    db: Session = Depends(get_db)
+    request: UserCreate,
+    db: Session = Depends(get_db),
 ):
-    # Check whether email already exists
-    existing_user = db.query(User).filter(
-        User.email == user_data.email
-    ).first()
+    existing_user = get_user_by_email(
+        db,
+        request.email,
+    )
 
     if existing_user:
         raise HTTPException(
             status_code=409,
-            detail="Email already registered"
+            detail="User already exists.",
         )
 
-    # Hash password
-    hashed_password = hash_password(
-        user_data.password
+    return create_user(
+        db=db,
+        email=request.email,
+        full_name=request.full_name,
+        firebase_uid=request.firebase_uid,
     )
 
-    # Create user
-    new_user = User(
-        full_name=user_data.full_name,
-        email=user_data.email,
-        hashed_password=hashed_password
-    )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    user = get_user_by_id(db, user_id)
 
-    return new_user
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found.",
+        )
+
+    return user

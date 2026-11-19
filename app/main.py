@@ -1,13 +1,9 @@
-from fastapi import Depends
-
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.connection import get_db
-
-from openai.types.realtime.client_secret_create_params import Session
-from fastapi import Depends
-from fastapi import FastAPI, File, HTTPException, UploadFile
 
 from app.services.resume_parser import extract_resume_text
 from app.services.skill_extractor import (
@@ -24,12 +20,26 @@ from app.routers.matching import router as matching_router
 from app.routers.ai import router as ai_router
 from app.routers.analysis import router as analysis_router
 from app.routers.users import router as users_router
+from app.routers.resumes import router as resumes_router
+from app.routers.saved_jobs import router as saved_jobs_router
 
 
 app = FastAPI(
     title="AI Resume & Job Match Analyzer",
     description="Analyze resumes against job descriptions.",
     version="1.0.0",
+)
+
+#  CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -39,6 +49,9 @@ app.include_router(matching_router)
 app.include_router(ai_router)
 app.include_router(analysis_router)
 app.include_router(users_router)
+app.include_router(users_router)
+app.include_router(resumes_router)
+app.include_router(saved_jobs_router)
 
 @app.get("/")
 async def home():

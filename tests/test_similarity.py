@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+# Add project root to sys.path so 'app' can be imported when run directly
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from app.services.text_similarity import (
     calculate_text_similarity
 )
