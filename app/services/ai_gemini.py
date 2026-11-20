@@ -31,14 +31,7 @@ async def generate_gemini_recommendations(
 ) -> ResumeRecommendation:
     """Generate recommendations using Google Gemini."""
     client = get_gemini_client()
-    model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-    if model in ("gemini-2.5-flash", "gemini-2.5"):
-        logger.warning(
-            "Invalid model '%s' detected; falling back to 'gemini-1.5-flash'",
-            model,
-        )
-        model = "gemini-1.5-flash"
-
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     max_output_tokens = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "8192"))
 
     system_prompt, user_prompt = get_promt(resume_text, job_description)
