@@ -1,3 +1,4 @@
+import logging
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -5,6 +6,8 @@ from pydantic import BaseModel, Field
 from app.services.ai_resume_assistant import (
     generate_resume_recommendations,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/ai",
@@ -39,14 +42,18 @@ async def get_recommendations(
             "recommendations": result.model_dump(),
         }
 
+    except HTTPException:
+        raise
+
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
             detail=str(exc),
         )
 
-    except Exception:
+    except Exception as exc:
+        logger.exception("AI recommendations failed: %s", exc)
         raise HTTPException(
             status_code=502,
-            detail="Unable to generate AI recommendations.",
+            detail=f"Unable to generate AI recommendations: {str(exc)}",
         )

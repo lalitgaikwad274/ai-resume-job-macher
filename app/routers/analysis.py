@@ -1,3 +1,4 @@
+import logging
 
 from fastapi import (
     APIRouter,
@@ -10,6 +11,8 @@ from fastapi import (
 from app.services.analysis_service import (
     analyze_complete_resume,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/analysis",
@@ -78,6 +81,9 @@ async def full_resume_analysis(
                 include_ai=include_ai,
             )
 
+        except HTTPException:
+            raise
+
         except ValueError as exc:
             raise HTTPException(
                 status_code=422,
@@ -85,9 +91,10 @@ async def full_resume_analysis(
             ) from exc
 
         except Exception as exc:
+            logger.exception("Full resume analysis failed: %s", exc)
             raise HTTPException(
                 status_code=502,
-                detail="Resume analysis failed. Check the AI provider configuration and service logs.",
+                detail=f"Resume analysis failed: {str(exc)}",
             ) from exc
 
         return result
